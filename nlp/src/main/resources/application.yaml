@@ -1,0 +1,54 @@
+application:
+  bannerMessage: ""
+  environment: DEV
+  nlp: "true"
+
+logging:
+  level:
+    com:
+      k2:
+        nemesis: TRACE
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: "true"
+
+spring:
+  servlet:
+    multipart:
+      enabled: "true"
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: "false"
+  datasource:
+    jdbc-url: jdbc:hsqldb:file:./home/db/nlp-db;DB_CLOSE_DELAY=-1
+    username: sa
+    encpassword: Mi4CRQEU9EqUzEjb3MYhCA==:PZt8lB6lxGcGE2FQrCYO1g==
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.HSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+nlp:
+  trainingDataLocation: home/nlp-data-root/training
+  modelRootLocation: home/nlp-data-root
+  nlpRootLocation: home/nlp-data-root/nlp
+  trainingSystem: false
+  iterations: 100
+  cutOff: 5
+  algorithm: "NAIVEBAYES"
+  dataIndexer: "TwoPass"
+  tokenizerModel: eng-token.bin
+  taggerModel: eng-pos-maxent.bin
+  languageModel: lang-detect.bin
+
