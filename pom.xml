@@ -21,5 +21,6 @@
         <module>core</module>
         <module>template</module>
         <module>nlp</module>
+        <module>nlg</module>
     </modules>
 </project>

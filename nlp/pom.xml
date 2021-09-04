@@ -17,7 +17,7 @@
 	<artifactId>nlp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>nlp-service</name>
-	<description>NLP Service using Spring Boot</description>
+	<description>Natural Language Processing (NLP) Service using Spring Boot</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.14</version>
+			<version>1.18.20</version>
 		</dependency>
 
 		<dependency>
