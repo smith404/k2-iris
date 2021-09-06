@@ -22,5 +22,6 @@
         <module>template</module>
         <module>nlp</module>
         <module>nlg</module>
+        <module>docgen</module>
     </modules>
 </project>
