@@ -14,24 +14,17 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.k2</groupId>
-	<artifactId>core</artifactId>
+	<artifactId>ocr</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>k2-core-library</name>
-	<description>K2 Core Library</description>
+	<name>k2-ocr-library</name>
+	<description>K2 Text Extraction Library</description>
 
 	<properties>
 		<java.version>1.8</java.version>
-		<groovy.version>3.0.9</groovy.version>
+		<tika.version>1.25</tika.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy-all</artifactId>
-			<version>${groovy.version}</version>
-			<type>pom</type>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -66,9 +59,14 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.12</version>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers</artifactId>
+			<version>${tika.version}</version>
 		</dependency>
 	</dependencies>
 </project>

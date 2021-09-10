@@ -23,5 +23,7 @@
         <module>nlp</module>
         <module>nlg</module>
         <module>docgen</module>
+        <module>persist</module>
+        <module>ocr</module>
     </modules>
 </project>

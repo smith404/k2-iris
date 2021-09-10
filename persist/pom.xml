@@ -14,24 +14,16 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.k2</groupId>
-	<artifactId>core</artifactId>
+	<artifactId>persist</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>k2-core-library</name>
+	<name>k2-persistance-library</name>
 	<description>K2 Core Library</description>
 
 	<properties>
 		<java.version>1.8</java.version>
-		<groovy.version>3.0.9</groovy.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy-all</artifactId>
-			<version>${groovy.version}</version>
-			<type>pom</type>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -39,6 +31,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
 		<dependency>
@@ -66,9 +62,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.12</version>
+			<groupId>com.k2</groupId>
+			<artifactId>core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
