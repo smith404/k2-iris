@@ -29,7 +29,7 @@ import java.io.StringWriter;
 
 @RestController
 @RequestMapping("/nlp")
-public class TemplateController
+public class TemplateRESTController
 {
     @RequestMapping(method = RequestMethod.GET, value = "/new")
     public ResponseEntity<?> makeNew(Model model)

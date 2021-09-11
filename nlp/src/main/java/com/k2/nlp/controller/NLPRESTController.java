@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/nlp")
-public class NLPController
+public class NLPRESTController
 {
     @Autowired
     NLPServiceImpl nlpService;

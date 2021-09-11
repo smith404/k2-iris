@@ -68,5 +68,20 @@
 			<artifactId>tika-parsers</artifactId>
 			<version>${tika.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.k2</groupId>
+			<artifactId>core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>
