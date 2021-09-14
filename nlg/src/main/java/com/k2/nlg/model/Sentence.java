@@ -19,19 +19,22 @@ import java.util.List;
 public class Sentence
 {
     private int index = 0;
+
     private String text;
 
     private List<LexToken> tokens = new ArrayList<>();
-    private List<Chunk> rawChunks = new ArrayList<>();
+    private List<Chunk> chunks = new ArrayList<>();
+    private List<String> lemmas = new ArrayList<>();
     private List<Chunk> compressedChunks = new ArrayList<>();
 
     // Default constructor needed for Jackson serialization/de-serialization
     public Sentence()
     {
     }
-    public Sentence(String text)
+
+    public Sentence(String text, List<String> tokens)
     {
-        this.text = text;
+        //this.text = text;
 /*
         // Get the tokens and suggested tags
         boolean[] raw = new boolean[tokens.length];
@@ -80,7 +83,7 @@ public class Sentence
 
     public DocumentElement getDocumentElement(NLGServiceImpl nlgService)
     {
-        return getDocumentElement(nlgService, null);
+        return getDocumentElement(nlgService, Tense.PRESENT);
     }
 
     public DocumentElement getDocumentElement(NLGServiceImpl nlgService, Tense tense)
@@ -183,17 +186,7 @@ public class Sentence
         return returnChunk;
     }
 
-    public String getText()
-    {
-        return text;
-    }
-
-    public void setText(String text)
-    {
-        this.text = text;
-    }
-
-    public List<LexToken> getTokens()
+   public List<LexToken> getTokens()
     {
         return tokens;
     }
@@ -203,14 +196,14 @@ public class Sentence
         this.tokens = tokens;
     }
 
-    public List<Chunk> getRawChunks()
+    public List<Chunk> getChunks()
     {
-        return rawChunks;
+        return chunks;
     }
 
-    public void setRawChunks(List<Chunk> rawChunks)
+    public void setChunks(List<Chunk> chunks)
     {
-        this.rawChunks = rawChunks;
+        this.chunks = chunks;
     }
 
     public List<Chunk> getCompressedChunks()
@@ -227,7 +220,6 @@ public class Sentence
     public String toString()
     {
         return "\nSentence{" +
-                "text='" + text + '\'' +
                 ", tokens=" + tokens +
                 '}';
     }

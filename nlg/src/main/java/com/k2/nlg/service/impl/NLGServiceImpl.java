@@ -1,16 +1,20 @@
 package com.k2.nlg.service.impl;
 
+import com.k2.core.model.TextResponse;
 import com.k2.nlg.model.Chunk;
 import com.k2.nlg.model.LexToken;
+import com.k2.nlg.model.Sentence;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import simplenlg.features.Feature;
+import simplenlg.features.Tense;
 import simplenlg.framework.CoordinatedPhraseElement;
 import simplenlg.framework.DocumentElement;
 import simplenlg.framework.NLGElement;
 import simplenlg.framework.NLGFactory;
 import simplenlg.lexicon.Lexicon;
 import simplenlg.phrasespec.*;
+import simplenlg.realiser.english.Realiser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +72,7 @@ public class NLGServiceImpl
 
             return new ArrayList<>();
         }
+    */
 
         public TextResponse realize(Sentence sentence, String tense)
         {
@@ -101,7 +106,7 @@ public class NLGServiceImpl
 
             return retVal;
         }
-    */
+
     public DocumentElement createSentence()
     {
         return nlgFactory.createSentence();

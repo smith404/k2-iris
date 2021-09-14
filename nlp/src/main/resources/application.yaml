@@ -10,6 +10,7 @@ logging:
         nemesis: TRACE
 
 server:
+  port: 8082
   servlet:
     session:
       cookie:
@@ -40,9 +41,9 @@ spring:
     show-sql: false
 
 nlp:
-  trainingDataLocation: home/nlp-data-root/training
-  modelRootLocation: home/nlp-data-root
-  nlpRootLocation: home/nlp-data-root/nlp
+  trainingDataLocation: /local/home/nlp-data-root/training
+  modelRootLocation: /local/home/nlp-data-root
+  nlpRootLocation: /local/home/nlp-data-root/nlp
   trainingSystem: false
   iterations: 100
   cutOff: 5

@@ -3,17 +3,18 @@
  * All software, both binary and source published by K2-Software (hereafter, Software) is copyrighted by the author (hereafter, K2-Software) and ownership of all right, title and interest in and to the Software remains with K2-Software. By using or copying the Software, User agrees to abide by the terms of this Agreement.
  */
 
-package com.k2.core.controller;
+package com.k2.persist.controller;
 
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.k2.core.PlatformClassLoader;
+import com.k2.core.controller.BaseController;
 import com.k2.core.exception.BaseException;
-import com.k2.core.model.BaseEntity;
+import com.k2.persist.model.BaseEntity;
 import com.k2.core.model.CommandResult;
-import com.k2.core.model.TextResponse;
-import com.k2.core.service.UtilsService;
+import com.k2.persist.model.TextResponse;
+import com.k2.persist.service.UtilsService;
 import com.k2.core.util.SimpleCipher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

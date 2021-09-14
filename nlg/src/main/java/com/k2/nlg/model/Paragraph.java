@@ -16,16 +16,9 @@ public class Paragraph
 
     private List<Sentence> sentences = new ArrayList<>();
 
-    public Paragraph(String lang, String[] sentences)
+    public Paragraph(String lang)
     {
         this.lang = lang;
-        this.text = text;
-
-        for(String sentence : sentences)
-        {
-            Sentence s = new Sentence(sentence);
-            this.sentences.add(s);
-        }
     }
 
     public String getText()
@@ -56,6 +49,11 @@ public class Paragraph
     public void setSentences(List<Sentence> sentences)
     {
         this.sentences = sentences;
+    }
+
+    public void addSentence(Sentence sentence)
+    {
+        this.sentences.add(sentence);
     }
 
     @Override

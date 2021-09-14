@@ -58,6 +58,12 @@
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.k2</groupId>
+			<artifactId>nlg</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -5,7 +5,6 @@
 
 package com.k2.core.controller;
 
-import com.k2.core.service.impl.EntityServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,16 +20,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/entity")
 public class BaseRESTController
 {
-    @Autowired
-    private EntityServiceImpl entityService;
-
-    @RequestMapping(method = RequestMethod.GET, value = "/init")
-    public ResponseEntity<?> readEntity(@RequestParam(value = "entity") String entity,
-                                        @RequestParam(value = "id") Long id, Model model)
-    {
-        Object object = entityService.findInstanceWithNameValuePair(entity, "id", id);
-
-        return new ResponseEntity<>(object, HttpStatus.OK);
-    }
 
 }

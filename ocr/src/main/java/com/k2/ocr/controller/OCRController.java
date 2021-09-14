@@ -29,7 +29,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/knowledge")
+@RequestMapping("/ocr")
 public class OCRController extends BaseController
 {
     @RequestMapping(method = RequestMethod.POST, value = "/uploadFile")

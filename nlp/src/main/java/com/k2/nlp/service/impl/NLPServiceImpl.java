@@ -54,11 +54,11 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
     // Open NLP variables
     private LanguageDetector ld;
+    private SentenceDetectorME sentenceDetector;
     private TokenizerME tokenizer;
     private POSTaggerME tagger;
-    private SentenceDetectorME sentenceDetector;
-    private ChunkerME chunker;
     private DictionaryLemmatizer lemmatizer;
+    private ChunkerME chunker;
 
     // Model stores
     private final Map<Category, DocumentCategorizer> categorizers = new LinkedHashMap<>();

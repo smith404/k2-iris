@@ -3,7 +3,7 @@
  * All software, both binary and source published by K2-Software (hereafter, Software) is copyrighted by the author (hereafter, K2-Software) and ownership of all right, title and interest in and to the Software remains with K2-Software. By using or copying the Software, User agrees to abide by the terms of this Agreement.
  */
 
-package com.k2.core.model;
+package com.k2.persist.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 public class TextRecord
 {
     private String text = "";
-    private List<CustomPair> record = new ArrayList<>();
+    private List<com.k2.persist.model.CustomPair> record = new ArrayList<>();
 
     public TextRecord()
     {
@@ -27,7 +27,7 @@ public class TextRecord
         this.text = text;
     }
 
-    public List<CustomPair> getRecord()
+    public List<com.k2.persist.model.CustomPair> getRecord()
     {
         return record;
     }
