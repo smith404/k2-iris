@@ -7,8 +7,10 @@ package com.k2.docgen;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties({DocGenProperties.class})
 public class ApplicationMain
 {
 	public static void main(String[] args) {

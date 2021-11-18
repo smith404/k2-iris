@@ -38,3 +38,8 @@ spring:
       hibernate:
         format_sql: true
     show-sql: false
+
+nlp:
+  categoryRootLocation: ./home/templates
+  templates:
+    - simple.docx
