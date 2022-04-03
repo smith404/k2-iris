@@ -110,7 +110,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -128,7 +128,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -146,7 +146,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -163,7 +163,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -181,7 +181,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -199,7 +199,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
 
@@ -237,7 +237,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
@@ -282,7 +282,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
@@ -341,7 +341,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
@@ -384,7 +384,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -418,7 +418,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }

@@ -7,6 +7,7 @@ package com.k2.nlp.controller;
 
 import com.k2.core.model.CustomPair;
 import com.k2.core.model.TextRecord;
+import com.k2.nlp.model.NamedEntity;
 import com.k2.nlp.service.impl.NLPServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/nlp")
@@ -56,4 +60,15 @@ public class NLPRESTController
         return new ResponseEntity<>(nlpService.tokenizeValues(text), HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/entities")
+    public ResponseEntity<?> detectEntities(@RequestBody String text, Model model)
+    {
+        List<NamedEntity> entities = new ArrayList<>();
+
+        List<NamedEntity> found = nlpService.entityDetect(text, 0.8);
+
+
+
+        return new ResponseEntity<>(entities, HttpStatus.OK);
+    }
 }

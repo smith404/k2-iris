@@ -106,6 +106,11 @@ public class NamedEntity
         this.length = length;
     }
 
+    public boolean better(NamedEntity that)
+    {
+        return false;
+    }
+
     @Override
     public String toString()
     {
@@ -113,9 +118,24 @@ public class NamedEntity
                 "name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", value='" + value + '\'' +
-                ", proabability=" + probability +
+                ", probability=" + probability +
                 ", start=" + start +
                 ", length=" + length +
                 '}';
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof NamedEntity)) return false;
+
+        NamedEntity that = (NamedEntity) obj;
+        return (this.start == that.start && this.length == that.length && this.probability == that.probability);
     }
 }
