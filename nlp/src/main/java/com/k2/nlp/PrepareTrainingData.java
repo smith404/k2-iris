@@ -5,36 +5,54 @@
 
 package com.k2.nlp;
 
+import com.k2.core.exception.BaseException;
+import opennlp.tools.doccat.*;
+import opennlp.tools.util.*;
 import org.apache.commons.cli.*;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PrepareTrainingData
 {
-    private List<String> files = new ArrayList<>();
-    private String category;
+    private final List<String> files = new ArrayList<>();
+    private final String category;
 
     public static Options makeOptions()
     {
         Options options = new Options();
 
-        Option append = new Option("a", "append", false, "append");
-        append.setRequired(false);
-        options.addOption(append);
-
         Option category = new Option("c", "category", true, "category");
         category.setRequired(true);
         options.addOption(category);
 
-        Option input = new Option("i", "input", true, "input direcotry path");
-        input.setRequired(true);
-        options.addOption(input);
-
-        Option output = new Option("o", "output", true, "output file");
+        Option output = new Option("t", "training-data", true, "training data file path");
         output.setRequired(true);
         options.addOption(output);
+
+        Option directory = new Option("d", "input", true, "input directory path");
+        directory.setRequired(false);
+        options.addOption(directory);
+
+        Option language = new Option("l", "lang", true, "language of training data (default eng)");
+        language.setRequired(false);
+        options.addOption(language);
+
+        Option extension = new Option("e", "extension", true, "extension of files to load (default txt)");
+        extension.setRequired(false);
+        options.addOption(extension);
+
+        Option generate = new Option("g", "generate", false, "generate a category model (default no)");
+        generate.setRequired(false);
+        options.addOption(generate);
+
+        Option append = new Option("a", "append", false, "append to supplied output file (default no)");
+        append.setRequired(false);
+        options.addOption(append);
 
         return options;
     }
@@ -58,21 +76,45 @@ public class PrepareTrainingData
             System.exit(1);
         }
 
-        String inputDirectoryPath = cmd.getOptionValue("input");
-        String outputFilePath = cmd.getOptionValue("output");
         String outputCategory = cmd.getOptionValue("category");
+        String trainingDataFilePath = cmd.getOptionValue("training-data");
+        String inputDirectoryPath = cmd.getOptionValue("input");
+        if (inputDirectoryPath == null)
+        {
+            inputDirectoryPath = "";
+        }
+        String language = cmd.getOptionValue("language");
+        if (language == null)
+        {
+            language = "eng";
+        }
+        String extension = cmd.getOptionValue("extension");
+        if (extension == null)
+        {
+            extension = ".txt";
+        }
+        if (!extension.startsWith("."))
+        {
+            extension = "." + extension;
+        }
         boolean appendToFile = cmd.hasOption("append");
+        boolean generateModel = cmd.hasOption("generate");
 
         //System.out.println("inputDirectoryPath: " + inputDirectoryPath);
-        //System.out.println("outputFilePath: " + outputFilePath);
+        //System.out.println("trainingDataFilePath: " + trainingDataFilePath);
         //System.out.println("outputCategory: " + outputCategory);
         //System.out.println("appendToFile: " + appendToFile);
 
-        PrepareTrainingData trainingData = new PrepareTrainingData(inputDirectoryPath,"txt", outputCategory);
+        PrepareTrainingData trainingData = new PrepareTrainingData(inputDirectoryPath, extension, outputCategory);
 
         try
         {
-            trainingData.writeData(outputFilePath, appendToFile);
+            trainingData.writeData(trainingDataFilePath, appendToFile);
+
+            if (generateModel)
+            {
+                trainingData.createCategoryModel(readContentsAsString(trainingDataFilePath, false), outputCategory, language);
+            }
         }
         catch (IOException e)
         {
@@ -84,16 +126,19 @@ public class PrepareTrainingData
     {
         this.category = category;
 
-        File folder = new File(sourceDirectory);
-        if (folder.isDirectory())
+        if (sourceDirectory.length() > 0)
         {
-            listFilesInFolder(folder, extension, files);
+            File folder = new File(sourceDirectory);
+            if (folder.isDirectory())
+            {
+                listFilesInFolder(folder, extension, files);
+            }
         }
     }
 
     public void listFilesInFolder(final File folder, String extension, List<String> files)
     {
-        for (final File fileEntry : folder.listFiles())
+        for (final File fileEntry : Objects.requireNonNull(folder.listFiles()))
         {
             if (fileEntry.getName().endsWith(extension))
             {
@@ -104,10 +149,16 @@ public class PrepareTrainingData
 
     public void writeData(String fileName, boolean append) throws IOException
     {
+        if (files.size() == 0)
+        {
+            return;
+        }
+
         FileWriter myWriter = new FileWriter(fileName, append);
+
         for (String path : files)
         {
-            String contents = readContentsAsString(path);
+            String contents = readContentsAsString(path, true);
             myWriter.write(category);
             myWriter.write("\t");
             myWriter.write(contents);
@@ -116,7 +167,50 @@ public class PrepareTrainingData
         myWriter.close();
     }
 
-    public String readContentsAsString(String path) throws IOException
+    public void createCategoryModel(String data, String category, String lang)
+    {
+        try
+        {
+            if (data != null)
+            {
+                //Path location = Paths.get(nlpProperties.getModelRootLocation());
+                Path location = Paths.get(".");
+
+                File modelFile = new File(location + "/" + lang + "-" + category + ".bin");
+
+                File tempFile = File.createTempFile("model", ".tmp");
+                BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+                writer.write(data);
+
+                // Read, process and store the training data
+                InputStreamFactory inputStreamFactory = new MarkableFileInputStreamFactory(tempFile);
+                ObjectStream<String> lineStream = new PlainTextByLineStream(inputStreamFactory, "UTF-8");
+                ObjectStream<DocumentSample> sampleStream = new DocumentSampleStream(lineStream);
+                TrainingParameters params = new TrainingParameters();
+                //params.put(TrainingParameters.ITERATIONS_PARAM, nlpProperties.getIterations());
+                params.put(TrainingParameters.ITERATIONS_PARAM, 100);
+                //params.put(TrainingParameters.CUTOFF_PARAM, nlpProperties.getCutOff());
+                params.put(TrainingParameters.CUTOFF_PARAM, 5);
+                //params.put("DataIndexer", nlpProperties.getDataIndexer());
+                params.put("DataIndexer", "TwoPass");
+                //params.put(TrainingParameters.ALGORITHM_PARAM, nlpProperties.getAlgorithm());
+                params.put(TrainingParameters.ALGORITHM_PARAM, "NAIVEBAYES");
+                DoccatModel model = DocumentCategorizerME.train("en", sampleStream, params, new DoccatFactory());
+
+                BufferedOutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
+                model.serialize(modelOut);
+                modelOut.close();
+
+                tempFile.deleteOnExit();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new BaseException(ex.getMessage(), ex);
+        }
+    }
+
+    public static String readContentsAsString(String path, boolean concat) throws IOException
     {
         BufferedReader br = new BufferedReader(new FileReader(path));
         StringBuilder sb = new StringBuilder();
@@ -124,7 +218,14 @@ public class PrepareTrainingData
             String line = br.readLine();
             while (line != null) {
                 sb.append(line);
-                sb.append(" ");
+                if (concat)
+                {
+                    sb.append(" ");
+                }
+                else
+                {
+                    sb.append(System.lineSeparator());
+                }
                 line = br.readLine();
             }
         } finally {

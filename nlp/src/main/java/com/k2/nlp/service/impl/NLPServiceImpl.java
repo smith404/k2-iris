@@ -8,7 +8,6 @@ package com.k2.nlp.service.impl;
 import com.k2.core.component.BaseComponent;
 import com.k2.core.exception.BaseException;
 import com.k2.core.model.Category;
-import com.k2.core.model.Clause;
 import com.k2.core.model.Prediction;
 import com.k2.core.service.UtilsService;
 import com.k2.nlp.NLPProperties;
@@ -17,7 +16,9 @@ import com.k2.nlp.service.NLPService;
 import lombok.extern.slf4j.Slf4j;
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
-import opennlp.tools.doccat.*;
+import opennlp.tools.doccat.DoccatModel;
+import opennlp.tools.doccat.DocumentCategorizer;
+import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.langdetect.Language;
 import opennlp.tools.langdetect.LanguageDetector;
 import opennlp.tools.langdetect.LanguageDetectorME;
@@ -41,7 +42,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -61,8 +61,8 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
     private ChunkerME chunker;
 
     // Model stores
-    private final Map<Category, DocumentCategorizer> categorizers = new LinkedHashMap<>();
-    private final Map<Category, TokenNameFinder> nameFinders = new LinkedHashMap<>();
+    private final Map<String, DocumentCategorizer> categorizers = new LinkedHashMap<>();
+    private final Map<String, TokenNameFinder> nameFinders = new LinkedHashMap<>();
 
     @PostConstruct
     public void init()
@@ -83,18 +83,6 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         initRegExCatEntityModels();
         initCompiledEntityModels();
         initCompiledCategoryModels();
-    }
-
-    public List<Category> getCategories()
-    {
-
-        return new ArrayList<>(categorizers.keySet());
-    }
-
-    public List<Category> getEntityModels()
-    {
-
-        return new ArrayList<>(nameFinders.keySet());
     }
 
     public void initTokenizer()
@@ -231,7 +219,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
                     DictionaryNameFinder nameFinder = new DictionaryNameFinder(model);
 
-                    nameFinders.put(cat, nameFinder);
+                    nameFinders.put(file.getName(), nameFinder);
 
                     log.info("NLP ** Processing entity model, found file for entity type: {}", cat.getFriendlyName());
                 }
@@ -276,7 +264,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                     }
 
                     RegexNameFinder nameFinder = new RegexNameFinder(patterns.toArray(new Pattern[0]), cat.getName());
-                    nameFinders.put(cat, nameFinder);
+                    nameFinders.put(file.getName(), nameFinder);
 
                     log.info("NLP ** Processing entity model, found file for entity type: {}", cat.getFriendlyName());
                 }
@@ -335,7 +323,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                     }
 
                     RegexNameFinder nameFinder = new RegexNameFinder(regexMap);
-                    nameFinders.put(cat, nameFinder);
+                    nameFinders.put(file.getName(), nameFinder);
 
                     log.info("NLP ** Processing entity model, found file for entity type: {}", cat.getFriendlyName());
                 }
@@ -371,7 +359,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                     TokenNameFinderModel model = new TokenNameFinderModel(dataIn);
                     NameFinderME nameFinder = new NameFinderME(model);
 
-                    nameFinders.put(cat, nameFinder);
+                    nameFinders.put(file.getName(), nameFinder);
 
                     log.info("NLP ** Processing entity model, found file for entity type: {}", cat.getFriendlyName());
                 }
@@ -406,7 +394,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                     DoccatModel model = new DoccatModel(file);
                     DocumentCategorizer categorizer = new DocumentCategorizerME(model);
 
-                    categorizers.put(cat, categorizer);
+                    categorizers.put(file.getName(), categorizer);
                     log.info("NLP ** Processing categorizers, found file for category: {}", cat.getFriendlyName());
                 }
                 catch (FileNotFoundException ex)
@@ -479,28 +467,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return chunker.chunk(tokens, tags);
     }
 
-    private static final String CLAUSE_SPLIT_REGEX = "\\r\\n|\\n|\\r";
-    public List<Clause> splitClauses(String text)
-    {
-        List<Clause> clauses = new ArrayList<>();
-
-        String[] paragraphs = text.split(CLAUSE_SPLIT_REGEX);
-        for (String paragraph : paragraphs)
-        {
-            if (paragraph.trim().length()>0)
-            {
-                Clause c = new Clause();
-                c.setBody(paragraph.trim());
-                c.setType("Auto Generated");
-                c.setSubtype("Who knows...");
-                clauses.add(c);
-            }
-        }
-
-        return clauses;
-    }
-
-    public List<NamedEntity> entityDetect(Category entityModel, String text, double tolerance)
+    public List<NamedEntity> entityDetect(String entityModel, String text, double tolerance)
     {
         List<NamedEntity> results = new ArrayList<>();
 
@@ -511,13 +478,6 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         }
 
         String[] tokens = tokenize(text);
-/*
-        for (int i=0; i< tokens.length; ++i)
-        {
-            System.out.print("[" + tokens[i] + "],");
-        }
-        System.out.println();
-*/
         TokenNameFinder nameFinder = nameFinders.get(entityModel);
         if (nameFinder != null)
         {
@@ -552,7 +512,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 Span s = nameSpans[ni];
                 //System.out.println("Found: " + s);
                 NamedEntity ne = new NamedEntity();
-                ne.setName(entityModel.getName());
+                ne.setName(entityModel);
                 ne.setType(s.getType());
                 ne.setStart(s.getStart());
                 ne.setLength(s.length());
@@ -576,33 +536,17 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                     ne.setProbability(1);
 
                 results.add(ne);
-                //System.out.println("Found: " + ne);
             }
         }
 
         return results;
     }
 
-    public List<NamedEntity> entityDetect(String entityModel, String text, double tolerance)
-    {
-        AtomicReference<Category> cat = new AtomicReference<>();
-        for (Map.Entry<Category, TokenNameFinder> entry : nameFinders.entrySet())
-        {
-            Category k = entry.getKey();
-            if (k.getFriendlyName().equalsIgnoreCase(entityModel)) cat.set(k);
-        }
-
-        if (cat.get() != null)
-            return entityDetect(cat.get(), text, tolerance);
-        else
-            return new ArrayList<>();
-    }
-
     public List<NamedEntity> entityDetect(String text, double tolerance)
     {
         List<NamedEntity> results = new ArrayList<>();
 
-        for (Category entityModel : nameFinders.keySet())
+        for (String entityModel : nameFinders.keySet())
         {
             List<NamedEntity> nes = entityDetect(entityModel, text, tolerance);
 
@@ -617,10 +561,12 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         List<Prediction> predictions = new ArrayList<>();
 
         DocumentCategorizer categorizer = categorizers.get(name);
+
         if (categorizer != null)
         {
             return classifyContent(categorizer, text, name);
         }
+
         return predictions;
     }
 
@@ -668,48 +614,6 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return pr;
     }
 
-    public void createCategoryModel(String data, String category, String lang)
-    {
-        try
-        {
-            if (data != null)
-            {
-                Path location = Paths.get(nlpProperties.getModelRootLocation());
-
-                File modelFile = new File(location + "/category/" + lang + "-" + category + ".bin");
-
-                File tempFile = File.createTempFile("model", ".tmp");
-                BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-                writer.write(data);
-
-                // Read, process and store the training data
-                InputStreamFactory inputStreamFactory = new MarkableFileInputStreamFactory(tempFile);
-                ObjectStream<String> lineStream = new PlainTextByLineStream(inputStreamFactory, "UTF-8");
-                ObjectStream<DocumentSample> sampleStream = new DocumentSampleStream(lineStream);
-                TrainingParameters params = new TrainingParameters();
-                params.put(TrainingParameters.ITERATIONS_PARAM, nlpProperties.getIterations());
-                params.put(TrainingParameters.CUTOFF_PARAM, nlpProperties.getCutOff());
-                params.put("DataIndexer", nlpProperties.getDataIndexer());
-                params.put(TrainingParameters.ALGORITHM_PARAM, nlpProperties.getAlgorithm());
-                DoccatModel model = DocumentCategorizerME.train("en", sampleStream, params, new DoccatFactory());
-
-                DocumentCategorizer categorizer = new DocumentCategorizerME(model);
-
-                BufferedOutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
-                model.serialize(modelOut);
-                modelOut.close();
-
-                categorizers.put(new Category(category,"doccat"), categorizer);
-
-                tempFile.deleteOnExit();
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new BaseException(ex.getMessage(), ex);
-        }
-    }
-
     public void createEntityModel(String data, String category, String lang)
     {
         try
@@ -745,7 +649,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 model.serialize(modelOut);
                 modelOut.close();
 
-                nameFinders.put(new Category(category,"ner"), nameFinder);
+                nameFinders.put(category, nameFinder);
                 tempFile.deleteOnExit();
             }
         }
