@@ -10,6 +10,7 @@ public class TextResponse
     private String original;
     private String result;
     private boolean sucess;
+    private String properties;
 
     public TextResponse()
     {
@@ -46,5 +47,15 @@ public class TextResponse
     public void setSucess(boolean sucess)
     {
         this.sucess = sucess;
+    }
+
+    public String getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(String properties)
+    {
+        this.properties = properties;
     }
 }

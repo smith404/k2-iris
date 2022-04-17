@@ -24,20 +24,6 @@ public class NLPRESTController
     @Autowired
     NLPServiceImpl nlpService;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/new")
-    public ResponseEntity<?> makeNew(Model model)
-    {
-        TextRecord tr = new TextRecord();
-
-        tr.setText("The text");
-
-        tr.getRecord().add(new CustomPair("name", "Mark"));
-        tr.getRecord().add(new CustomPair("age", 51));
-        tr.getRecord().add(new CustomPair("sex", "Yes Please"));
-
-        return new ResponseEntity<>(tr, HttpStatus.OK);
-    }
-
     @RequestMapping(method = RequestMethod.POST, value = "/lang")
     public ResponseEntity<?> detectLanguage(@RequestBody String text, Model model)
     {
@@ -51,9 +37,32 @@ public class NLPRESTController
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/tokens")
-    public ResponseEntity<?> detectTokens(@RequestBody String text, Model model)
+    public ResponseEntity<?> detectTokenValues(@RequestBody String text, Model model)
     {
         return new ResponseEntity<>(nlpService.tokenizeValues(text), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/tokenize")
+    public ResponseEntity<?> detectTokens(@RequestBody String text, Model model)
+    {
+        return new ResponseEntity<>(nlpService.tokenize(text), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/tags")
+    public ResponseEntity<?> detectTags(@RequestBody String text, Model model)
+    {
+        String[] tokens = nlpService.tokenize(text);
+
+        return new ResponseEntity<>(nlpService.tags(tokens), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/lemmas")
+    public ResponseEntity<?> detectLemmas(@RequestBody String text, Model model)
+    {
+        String[] tokens = nlpService.tokenize(text);
+        String[] tags = nlpService.tags(tokens);
+
+        return new ResponseEntity<>(nlpService.lemmas(tokens, tags), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/entities")

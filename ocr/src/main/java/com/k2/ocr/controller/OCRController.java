@@ -48,18 +48,7 @@ public class OCRController extends BaseController
                 String fileName = file.getOriginalFilename();
                 InputStream is = new ByteArrayInputStream(file.getBytes());
 
-                if (type.equalsIgnoreCase("metadata"))
-                {
-                    Metadata theData = TiKaUtils.extractMetaDataUsingParser(is);
-                    StringBuilder sb = new StringBuilder();
-                    for(String name : theData.names())
-                    {
-                        DocMetaData dmd = new DocMetaData(name, theData.get(name));
-                        sb.append(dmd.prettyPrint()).append(UtilsService.NEWLINE);
-                    }
-                    tr.setResult(sb.toString());
-                }
-                else if (type.equalsIgnoreCase("metadatalist"))
+                if (type.equalsIgnoreCase("metadatalist"))
                 {
                     asList = true;
                     Metadata theData = TiKaUtils.extractMetaDataUsingParser(is);
@@ -68,9 +57,24 @@ public class OCRController extends BaseController
                         DocMetaData dmd = new DocMetaData(name, theData.get(name));
                         dmdList.add(dmd);
                     }
+
                 }
                 else
                 {
+                    if (type.equalsIgnoreCase("metadata"))
+                    {
+                        Metadata theData = TiKaUtils.extractMetaDataUsingParser(is);
+                        StringBuilder sb = new StringBuilder();
+                        for(String name : theData.names())
+                        {
+                            DocMetaData dmd = new DocMetaData(name, theData.get(name));
+                            sb.append(dmd.prettyPrint()).append(UtilsService.NEWLINE);
+                        }
+                        tr.setProperties(sb.toString());
+
+                        is.reset();
+                    }
+
                     String content;
 
                     if (TiKaUtils.IsImageExtension(fileName))

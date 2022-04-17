@@ -10,6 +10,7 @@ import com.k2.core.exception.BaseException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 public interface UtilsService
 {
@@ -17,6 +18,54 @@ public interface UtilsService
     String NEWLINE = "\n";
     String TAB = "\t";
     String SPACE = " ";
+
+    static double jaccard(List<String> doc1, List<String> doc2)
+    {
+        Set<String> intersection = new HashSet<>();
+
+        for(String word: doc1)
+        {
+            if (doc2.contains((word)))
+            {
+                intersection.add(word);
+            }
+        }
+
+        return intersection.size() / (doc1.size() + doc2.size());
+    }
+
+    static double tf(List<String> doc, String term)
+    {
+        double result = 0;
+        for (String word : doc)
+        {
+            if (term.equalsIgnoreCase(word))
+                result++;
+        }
+        return result / doc.size();
+    }
+
+    static double idf(List<List<String>> docs, String term)
+    {
+        double n = 0;
+        for (List<String> doc : docs)
+        {
+            for (String word : doc)
+            {
+                if (term.equalsIgnoreCase(word))
+                {
+                    n++;
+                    break;
+                }
+            }
+        }
+        return Math.log(docs.size() / n);
+    }
+
+    static double tfIdf(List<String> doc, List<List<String>> docs, String term)
+    {
+        return tf(doc, term) * idf(docs, term);
+    }
 
     static String hashToHEX(String originalString)
     {
@@ -79,7 +128,6 @@ public interface UtilsService
     {
         return makeExceptionWarning(ex, "IRIS");
     }
-
 
     static BaseException makeBaseException(String description, Throwable ex)
     {
