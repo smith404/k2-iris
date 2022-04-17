@@ -1,0 +1,12 @@
+!!com.k2.nlp.model.NLPTrainingParameters
+trainingDataLocation: /local/home/nlp-data-root/training
+modelRootLocation: /local/home/nlp-data-root
+nlpRootLocation: /local/home/nlp-data-root/nlp
+trainingSystem: false
+iterations: 200
+cutOff: 5
+algorithm: "NAIVEBAYES"
+dataIndexer: "TwoPass"
+tokenizerModel: eng-token.bin
+taggerModel: eng-pos-maxent.bin
+languageModel: lang-detect.bin

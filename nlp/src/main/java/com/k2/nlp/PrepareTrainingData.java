@@ -6,9 +6,11 @@
 package com.k2.nlp;
 
 import com.k2.core.exception.BaseException;
+import com.k2.nlp.model.NLPTrainingParameters;
 import opennlp.tools.doccat.*;
 import opennlp.tools.util.*;
 import org.apache.commons.cli.*;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -21,6 +23,7 @@ public class PrepareTrainingData
 {
     private final List<String> files = new ArrayList<>();
     private final String category;
+    private NLPTrainingParameters tp = null;
 
     public static Options makeOptions()
     {
@@ -100,11 +103,6 @@ public class PrepareTrainingData
         boolean appendToFile = cmd.hasOption("append");
         boolean generateModel = cmd.hasOption("generate");
 
-        //System.out.println("inputDirectoryPath: " + inputDirectoryPath);
-        //System.out.println("trainingDataFilePath: " + trainingDataFilePath);
-        //System.out.println("outputCategory: " + outputCategory);
-        //System.out.println("appendToFile: " + appendToFile);
-
         PrepareTrainingData trainingData = new PrepareTrainingData(inputDirectoryPath, extension, outputCategory);
 
         try
@@ -124,6 +122,14 @@ public class PrepareTrainingData
 
     public PrepareTrainingData(String sourceDirectory, String extension, String category)
     {
+        Yaml yaml = new Yaml();
+        InputStream inputStream = this.getClass()
+                .getClassLoader()
+                .getResourceAsStream("training.yaml");
+
+
+        tp = yaml.load(inputStream);
+
         this.category = category;
 
         if (sourceDirectory.length() > 0)
@@ -186,17 +192,14 @@ public class PrepareTrainingData
                 InputStreamFactory inputStreamFactory = new MarkableFileInputStreamFactory(tempFile);
                 ObjectStream<String> lineStream = new PlainTextByLineStream(inputStreamFactory, "UTF-8");
                 ObjectStream<DocumentSample> sampleStream = new DocumentSampleStream(lineStream);
-                TrainingParameters params = new TrainingParameters();
-                //params.put(TrainingParameters.ITERATIONS_PARAM, nlpProperties.getIterations());
-                params.put(TrainingParameters.ITERATIONS_PARAM, 100);
-                //params.put(TrainingParameters.CUTOFF_PARAM, nlpProperties.getCutOff());
-                params.put(TrainingParameters.CUTOFF_PARAM, 5);
-                //params.put("DataIndexer", nlpProperties.getDataIndexer());
-                params.put("DataIndexer", "TwoPass");
-                //params.put(TrainingParameters.ALGORITHM_PARAM, nlpProperties.getAlgorithm());
-                params.put(TrainingParameters.ALGORITHM_PARAM, "NAIVEBAYES");
-                DoccatModel model = DocumentCategorizerME.train("en", sampleStream, params, new DoccatFactory());
 
+                TrainingParameters params = new TrainingParameters();
+                params.put(TrainingParameters.ITERATIONS_PARAM, tp.getIterations());
+                params.put(TrainingParameters.CUTOFF_PARAM, tp.getCutOff());
+                params.put("DataIndexer", tp.getDataIndexer());
+                params.put(TrainingParameters.ALGORITHM_PARAM, tp.getAlgorithm());
+
+                DoccatModel model = DocumentCategorizerME.train("en", sampleStream, params, new DoccatFactory());
                 BufferedOutputStream modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
                 model.serialize(modelOut);
                 modelOut.close();
