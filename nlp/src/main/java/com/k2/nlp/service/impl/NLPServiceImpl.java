@@ -506,6 +506,29 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return chunker.chunk(tokens, tags);
     }
 
+    public List<NLPEntity> sanitize(String text)
+    {
+        NLPEntity[] tokens = tokenizeValues(UtilsService.cleanWhiteSpace(UtilsService.makeAlphaNumeric(text, true)));
+
+        return Arrays.stream(tokens).filter(
+                c -> !(stopWords.contains(c.getLemma()))
+        ).collect(Collectors.toList());
+    }
+
+    public String toSanitizedString(String text)
+    {
+        List<NLPEntity> results = sanitize(text);
+
+        StringBuilder sb = new StringBuilder();
+        for(NLPEntity entity : results)
+        {
+            sb.append(entity.getLemma());
+            sb.append(" ");
+        }
+
+        return sb.toString().trim();
+    }
+
     public List<NLPEntity> entityDetect(String entityModel, String text, double tolerance)
     {
         List<NLPEntity> results = new ArrayList<>();
@@ -535,7 +558,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
             else
                 nameSpans = nameFinder.find(tokens);
 
-            double[] probs= new double[0];
+            double[] probs = null;
 
             // If we have a maximum-entropy-based name finder we can find probabilities
             if (nameFinder instanceof NameFinderME)
@@ -566,41 +589,17 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 ne.setValue(val.toString().trim());
 
-                if (probs.length > 0)
+                if (probs != null)
                     ne.setProbability(probs[ni]);
                 else
                     ne.setProbability(1);
 
+                if (ne.getProbability() >= tolerance)
                 results.add(ne);
             }
         }
 
         return results;
-    }
-
-    public List<NLPEntity> sanitize(String text)
-    {
-        NLPEntity[] tokens = tokenizeValues(UtilsService.cleanWhiteSpace(UtilsService.makeAlphaNumeric(text, true)));
-
-        List<NLPEntity> results = Arrays.stream(tokens).filter(
-                c -> !(stopWords.contains(c.getLemma()))
-        ).collect(Collectors.toList());
-
-        return results;
-    }
-
-    public String toSanitizedString(String text)
-    {
-        List<NLPEntity> results = sanitize(text);
-
-        StringBuilder sb = new StringBuilder();
-        for(NLPEntity entity : results)
-        {
-            sb.append(entity.getLemma());
-            sb.append(" ");
-        }
-
-        return sb.toString().trim();
     }
 
     public List<NLPEntity> entityDetect(String text, double tolerance)

@@ -23,7 +23,7 @@ public class PrepareTrainingData
 {
     private final List<String> files = new ArrayList<>();
     private final String category;
-    private NLPTrainingParameters tp = null;
+    private final NLPTrainingParameters tp;
 
     public static Options makeOptions()
     {
