@@ -19,6 +19,18 @@ public interface UtilsService
     String TAB = "\t";
     String SPACE = " ";
 
+    static String makeAlphaNumeric(String text, boolean withWhiteSpace)
+    {
+        String replacement = withWhiteSpace ? " " : "";
+
+        return text.replaceAll("[^a-zA-Z0-9]", replacement);
+    }
+
+    static String cleanWhiteSpace(String text)
+    {
+        return text.trim().replaceAll(" +", " ");
+    }
+
     static double jaccard(List<String> doc1, List<String> doc2)
     {
         Set<String> intersection = new HashSet<>();

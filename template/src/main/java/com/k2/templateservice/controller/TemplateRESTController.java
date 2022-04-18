@@ -76,7 +76,7 @@ public class TemplateRESTController
         {
             ex.printStackTrace();
             tr.setResult(ex.getMessage());
-            tr.setSucess(false);
+            tr.setSuccess(false);
         }
 
         return new ResponseEntity<>(tr, HttpStatus.OK);

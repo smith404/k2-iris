@@ -100,7 +100,7 @@ public class NLGServiceImpl
             catch (Exception ex)
             {
                 retVal.setResult(ex.getMessage());
-                retVal.setSucess(false);
+                retVal.setSuccess(false);
                 ex.printStackTrace();
             }
 

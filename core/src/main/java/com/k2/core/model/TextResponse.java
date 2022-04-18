@@ -9,14 +9,15 @@ public class TextResponse
 {
     private String original;
     private String result;
-    private boolean sucess;
+    private boolean success;
     private String properties;
 
     public TextResponse()
     {
         original = "";
         result = "";
-        sucess = true;
+        success = true;
+        properties = "";
     }
 
     public String getOriginal()
@@ -39,14 +40,14 @@ public class TextResponse
         this.result = result;
     }
 
-    public boolean isSucess()
+    public boolean isSuccess()
     {
-        return sucess;
+        return success;
     }
 
-    public void setSucess(boolean sucess)
+    public void setSuccess(boolean sucess)
     {
-        this.sucess = sucess;
+        this.success = sucess;
     }
 
     public String getProperties()

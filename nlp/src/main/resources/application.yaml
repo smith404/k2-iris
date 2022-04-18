@@ -52,4 +52,5 @@ nlp:
   tokenizerModel: eng-token.bin
   taggerModel: eng-pos-maxent.bin
   languageModel: lang-detect.bin
+  stopWords: eng-stopwords.txt
 

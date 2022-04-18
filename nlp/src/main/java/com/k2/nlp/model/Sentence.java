@@ -4,24 +4,24 @@ import opennlp.tools.util.Span;
 
 public class Sentence
 {
-    private NamedEntity theSentence;
+    private NLPEntity theSentence;
 
-    public Sentence(NamedEntity theSentence)
+    public Sentence(NLPEntity theSentence)
     {
         this.theSentence = theSentence;
     }
 
     public Sentence(Span theSentence, String text)
     {
-        this.theSentence = new NamedEntity(theSentence, text);
+        this.theSentence = new NLPEntity(theSentence, text, "SEN");
     }
 
-    public NamedEntity getTheSentence()
+    public NLPEntity getTheSentence()
     {
         return theSentence;
     }
 
-    public void setTheSentence(NamedEntity theSentence)
+    public void setTheSentence(NLPEntity theSentence)
     {
         this.theSentence = theSentence;
     }

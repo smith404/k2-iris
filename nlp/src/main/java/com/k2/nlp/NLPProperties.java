@@ -31,6 +31,7 @@ public class NLPProperties
     private String lemmatizerDict = "eng-lemmatizer.dict";
     private String chunkerModel = "eng-chunker.bin";
     private String languageModel = "lang-detect.bin";
+    private String stopWords = "eng-stopwords.txt";
 
     // Default models
     private String ocrLibrary = "win32-x86-64";
@@ -204,5 +205,15 @@ public class NLPProperties
     public void setDefaultLanguage(String defaultLanguage)
     {
         this.defaultLanguage = defaultLanguage;
+    }
+
+    public String getStopWords()
+    {
+        return stopWords;
+    }
+
+    public void setStopWords(String stopWords)
+    {
+        this.stopWords = stopWords;
     }
 }

@@ -7,9 +7,11 @@ package com.k2.nlp.model;
 
 import opennlp.tools.util.Span;
 
-public class NamedEntity
+public class NLPEntity
 {
     private String type = "" ;
+
+    private String lemma = "";
 
     private String value = "";
 
@@ -19,29 +21,41 @@ public class NamedEntity
 
     private int length = 0;
 
-    public NamedEntity()
+    public NLPEntity()
     {
     }
 
-    public NamedEntity(Span span, String value)
+    public NLPEntity(Span span, String value)
     {
         this.value = value;
+        this.lemma = value;
         this.type = (span.getType() == null) ? "UNKNOWN" : span.getType();
         this.start = span.getStart();
         this.length = span.length();
         this.probability = span.getProb();
     }
 
-    public NamedEntity(Span span, String value, String type)
+    public NLPEntity(Span span, String value, String type)
     {
         this.value = value;
+        this.lemma = value;
         this.type = (span.getType() == null) ? type : span.getType();
         this.start = span.getStart();
         this.length = span.length();
         this.probability = span.getProb();
     }
 
-    public NamedEntity(String type, String value, double probability, int start, int length)
+    public NLPEntity(Span span, String value, String lemma, String type)
+    {
+        this.value = value;
+        this.lemma = lemma;
+        this.type = (span.getType() == null) ? type : span.getType();
+        this.start = span.getStart();
+        this.length = span.length();
+        this.probability = span.getProb();
+    }
+
+    public NLPEntity(String type, String value, double probability, int start, int length)
     {
         this.type = type;
         this.value = value;
@@ -100,9 +114,19 @@ public class NamedEntity
         this.length = length;
     }
 
-    public boolean better(NamedEntity that)
+    public String getLemma()
     {
-        return false;
+        return lemma;
+    }
+
+    public void setLemma(String lemma)
+    {
+        this.lemma = lemma;
+    }
+
+    public boolean better(NLPEntity that)
+    {
+        return (this.probability >= that.probability);
     }
 
     @Override
@@ -126,9 +150,9 @@ public class NamedEntity
     @Override
     public boolean equals(Object obj)
     {
-        if (!(obj instanceof NamedEntity)) return false;
+        if (!(obj instanceof NLPEntity)) return false;
 
-        NamedEntity that = (NamedEntity) obj;
+        NLPEntity that = (NLPEntity) obj;
         return (this.start == that.start && this.length == that.length && this.probability == that.probability);
     }
 }

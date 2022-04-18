@@ -19,6 +19,21 @@ public class NLPTrainingParameters
     private String taggerModel;
     private String languageModel;
 
+    public NLPTrainingParameters()
+    {
+        trainingDataLocation = ".";
+        modelRootLocation = ".";
+        nlpRootLocation = ".";
+        trainingSystem = false;
+        iterations = 200;
+        cutOff = 5;
+        algorithm = "NAIVEBAYES";
+        dataIndexer = "TwoPass";
+        tokenizerModel = "eng-token.bin";
+        taggerModel = "eng-pos-maxent.bin";
+        languageModel = "lang-detect.bin";
+    }
+
     public String getTrainingDataLocation()
     {
         return trainingDataLocation;

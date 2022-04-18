@@ -5,9 +5,8 @@
 
 package com.k2.nlp.controller;
 
-import com.k2.core.model.CustomPair;
-import com.k2.core.model.TextRecord;
-import com.k2.nlp.model.NamedEntity;
+import com.k2.core.model.TextResponse;
+import com.k2.nlp.model.NLPEntity;
 import com.k2.nlp.service.impl.NLPServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,19 +29,43 @@ public class NLPRESTController
         return new ResponseEntity<>(nlpService.detectLanguage(text), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/sentences")
-    public ResponseEntity<?> detectSentences(@RequestBody String text, Model model)
+    @RequestMapping(method = RequestMethod.GET, value = "/stop-words")
+    public ResponseEntity<?> stopWords(Model model)
+    {
+        return new ResponseEntity<>(nlpService.stopWords(), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/sentences-value")
+    public ResponseEntity<?> detectSentencesValue(@RequestBody String text, Model model)
+    {
+        return new ResponseEntity<>(nlpService.sentencesValues(text), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/sentences-pos")
+    public ResponseEntity<?> detectSentencesPos(@RequestBody String text, Model model)
     {
         return new ResponseEntity<>(nlpService.sentencesPos(text), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/tokens")
+    @RequestMapping(method = RequestMethod.POST, value = "/sentences")
+    public ResponseEntity<?> detectSentences(@RequestBody String text, Model model)
+    {
+        return new ResponseEntity<>(nlpService.sentences(text), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/tokens-value")
     public ResponseEntity<?> detectTokenValues(@RequestBody String text, Model model)
     {
         return new ResponseEntity<>(nlpService.tokenizeValues(text), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/tokenize")
+    @RequestMapping(method = RequestMethod.POST, value = "/tokens-pos")
+    public ResponseEntity<?> detectPosTokens(@RequestBody String text, Model model)
+    {
+        return new ResponseEntity<>(nlpService.tokenizePos(text), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/tokens")
     public ResponseEntity<?> detectTokens(@RequestBody String text, Model model)
     {
         return new ResponseEntity<>(nlpService.tokenize(text), HttpStatus.OK);
@@ -65,10 +88,47 @@ public class NLPRESTController
         return new ResponseEntity<>(nlpService.lemmas(tokens, tags), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/entities")
-    public ResponseEntity<?> detectEntities(@RequestBody String text, Model model)
+    @RequestMapping(method = RequestMethod.POST, value = "/sanitize")
+    public ResponseEntity<?> sanitize(@RequestBody String text, Model model)
     {
-        List<NamedEntity> found = nlpService.entityDetect(text, 0.8);
+
+        return new ResponseEntity<>(nlpService.sanitize(text), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/sanitized-text")
+    public ResponseEntity<?> sanitizeText(@RequestBody String text, Model model)
+    {
+        TextResponse tr = new TextResponse();
+
+        tr.setResult(nlpService.toSanitizedString(text));
+
+        return new ResponseEntity<>(tr, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/chunks")
+    public ResponseEntity<?> detectChunks(@RequestBody String text, Model model)
+    {
+        String[] tokens = nlpService.tokenize(text);
+        String[] tags = nlpService.tags(tokens);
+
+        return new ResponseEntity<>(nlpService.chunks(tokens, tags), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/entities")
+    public ResponseEntity<?> detectEntities(@RequestBody String text, @RequestParam(defaultValue = "0.8") String tolerance, Model model)
+    {
+        double toleranceValue;
+
+        try
+        {
+            toleranceValue = Double.parseDouble(tolerance);
+        }
+        catch(Exception ex)
+        {
+            toleranceValue = 0.8;
+        }
+
+        List<NLPEntity> found = nlpService.entityDetect(text, toleranceValue);
 
         return new ResponseEntity<>(found, HttpStatus.OK);
     }

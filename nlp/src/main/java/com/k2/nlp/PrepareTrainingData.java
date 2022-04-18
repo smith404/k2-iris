@@ -66,7 +66,7 @@ public class PrepareTrainingData
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
-        CommandLine cmd = null;//not a good practice, it serves it purpose
+        CommandLine cmd = null;
 
         try
         {
@@ -179,9 +179,7 @@ public class PrepareTrainingData
         {
             if (data != null)
             {
-                //Path location = Paths.get(nlpProperties.getModelRootLocation());
-                Path location = Paths.get(".");
-
+                Path location = Paths.get(tp.getModelRootLocation());
                 File modelFile = new File(location + "/" + lang + "-" + category + ".bin");
 
                 File tempFile = File.createTempFile("model", ".tmp");

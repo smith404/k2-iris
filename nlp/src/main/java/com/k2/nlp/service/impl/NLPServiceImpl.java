@@ -11,7 +11,7 @@ import com.k2.core.model.Category;
 import com.k2.core.model.Prediction;
 import com.k2.core.service.UtilsService;
 import com.k2.nlp.NLPProperties;
-import com.k2.nlp.model.NamedEntity;
+import com.k2.nlp.model.NLPEntity;
 import com.k2.nlp.service.NLPService;
 import lombok.extern.slf4j.Slf4j;
 import opennlp.tools.chunker.ChunkerME;
@@ -39,11 +39,13 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service("NLPServiceImpl")
@@ -59,6 +61,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
     private POSTaggerME tagger;
     private DictionaryLemmatizer lemmatizer;
     private ChunkerME chunker;
+    private List<String> stopWords;
 
     // Model stores
     private final Map<String, DocumentCategorizer> categorizers = new LinkedHashMap<>();
@@ -73,6 +76,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         initSentenceDetector();
         initLemmatizer();
         initChunker();
+        initStopWords();
 
         // Language detection model
         initLanguageDetection();
@@ -95,10 +99,10 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
             TokenizerModel tokenModel = new TokenizerModel(dataIn);
             tokenizer = new TokenizerME(tokenModel);
+            log.info("NLP ** Loaded tokenizer, using model file: {}", modelFile.getName());
         }
         catch(Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -113,10 +117,10 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
             POSModel taggerModel = new POSModel(dataIn);
             tagger = new POSTaggerME(taggerModel);
+            log.info("NLP ** Loaded tagger, using model file: {}", modelFile.getName());
         }
         catch(Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -131,10 +135,10 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
             SentenceModel sentenceModel = new SentenceModel(dataIn);
             sentenceDetector = new SentenceDetectorME(sentenceModel);
+            log.info("NLP ** Loaded sentence detector, using model file: {}", modelFile.getName());
         }
         catch(Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -148,10 +152,10 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
             InputStream dataIn = new FileInputStream(modelFile);
 
             lemmatizer = new DictionaryLemmatizer(dataIn);
+            log.info("NLP ** Loaded lemmatizer, using model file: {}", modelFile.getName());
         }
         catch(Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -166,10 +170,27 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
             ChunkerModel chunkerModel = new ChunkerModel(dataIn);
             chunker = new ChunkerME(chunkerModel);
+            log.info("NLP ** Loaded chunker, using model file: {}", modelFile.getName());
         }
         catch(Exception ex)
         {
-            //ex.printStackTrace();
+            log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
+        }
+    }
+
+    public void initStopWords()
+    {
+        try
+        {
+            String path = nlpProperties.getNlpRootLocation() + "/" + nlpProperties.getStopWords();
+
+            try (Stream<String> lines = Files.lines(Paths.get(path))) {
+                stopWords = lines.collect(Collectors.toList());
+            }
+            log.info("NLP ** Loaded stop words, using model file: {}", nlpProperties.getStopWords());
+        }
+        catch(Exception ex)
+        {
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -184,10 +205,10 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
             LanguageDetectorModel languageModel = new LanguageDetectorModel(dataIn);
             ld = new LanguageDetectorME(languageModel);
+            log.info("NLP ** Loaded language detector, found file for entity type: {}", modelFile.getName());
         }
         catch(Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
 
@@ -225,14 +246,12 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    //ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -253,14 +272,13 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
 
                     InputStream dataIn = new FileInputStream(file);
 
-                    List<String> regexs = new BufferedReader(new InputStreamReader(dataIn, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+                    List<String> reg_exs = new BufferedReader(new InputStreamReader(dataIn, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
 
                     List<Pattern> patterns = new ArrayList<>();
-                    for (String regex : regexs)
+                    for (String regex : reg_exs)
                     {
                         Pattern p = Pattern.compile(regex);
                         patterns.add(p);
-                        //out.println("Adding pattern: " + p);
                     }
 
                     RegexNameFinder nameFinder = new RegexNameFinder(patterns.toArray(new Pattern[0]), cat.getName());
@@ -270,14 +288,12 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    //ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -329,14 +345,12 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    //ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -365,14 +379,12 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    ex.printStackTrace();
                     log.warn("NLP ** Processing entity model, could not find file for entity type: {}", file.getName());
                 }
             }
         }
         catch (Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
     }
@@ -399,16 +411,19 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
                 }
                 catch (FileNotFoundException ex)
                 {
-                    ex.printStackTrace();
                     log.warn("NLP ** Processing categorizers, could not find file for category: {}", file.getName());
                 }
             }
         }
         catch (Exception ex)
         {
-            //ex.printStackTrace();
             log.warn(UtilsService.makeExceptionWarning(ex),"NLP");
         }
+    }
+
+    public List<String> stopWords()
+    {
+        return stopWords;
     }
 
     public String[] sentences(String text)
@@ -421,6 +436,27 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return sentenceDetector.sentPosDetect(text);
     }
 
+    public NLPEntity[] sentencesValues(String text)
+    {
+        Span[] spans =  sentenceDetector.sentPosDetect(text);
+        String[] values = sentenceDetector.sentDetect(text);
+
+        if (spans.length != values.length)
+        {
+            log.warn("Error creating token array");
+            return new NLPEntity[0];
+        }
+
+        NLPEntity[] tokens = new NLPEntity[spans.length];
+        for(int i=0; i<spans.length; ++i)
+        {
+            NLPEntity t = new NLPEntity(spans[i], values[i], "SENT");
+            tokens[i] = t;
+        }
+
+        return tokens;
+    }
+
     public String[] tokenize(String text)
     {
         return tokenizer.tokenize(text);
@@ -431,21 +467,24 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return tokenizer.tokenizePos(text);
     }
 
-    public NamedEntity[] tokenizeValues(String text)
+    public NLPEntity[] tokenizeValues(String text)
     {
         Span[] spans =  tokenizer.tokenizePos(text);
         String[] values = tokenizer.tokenize(text);
+        String[] tags = tagger.tag(values);
+        String[] lemmas = lemmas(values, tags);
 
         if (spans.length != values.length)
         {
             log.warn("Error creating token array");
-            return new NamedEntity[0];
+            return new NLPEntity[0];
         }
 
-        NamedEntity[] tokens = new NamedEntity[spans.length];
+        NLPEntity[] tokens = new NLPEntity[spans.length];
         for(int i=0; i<spans.length; ++i)
         {
-            NamedEntity t = new NamedEntity(spans[i], values[i]);
+            String lemma = lemmas[i].equalsIgnoreCase("O") ? values[i].toLowerCase(Locale.ROOT) : lemmas[i];
+            NLPEntity t = new NLPEntity(spans[i], values[i], lemma.toLowerCase(Locale.ROOT), tags[i]);
             tokens[i] = t;
         }
 
@@ -467,9 +506,9 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return chunker.chunk(tokens, tags);
     }
 
-    public List<NamedEntity> entityDetect(String entityModel, String text, double tolerance)
+    public List<NLPEntity> entityDetect(String entityModel, String text, double tolerance)
     {
-        List<NamedEntity> results = new ArrayList<>();
+        List<NLPEntity> results = new ArrayList<>();
 
         // Convert to a percentage
         if (tolerance > 1)
@@ -492,7 +531,6 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
             {
                 nameSpans = ((RegexNameFinder) nameFinder).find(text);
                 useTokenPos = false;
-                //System.out.println("Spans found: " + nameSpans.length);
             }
             else
                 nameSpans = nameFinder.find(tokens);
@@ -510,9 +548,7 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
             for (int ni = 0; ni < nameSpans.length; ni++)
             {
                 Span s = nameSpans[ni];
-                //System.out.println("Found: " + s);
-                NamedEntity ne = new NamedEntity();
-                ne.setName(entityModel);
+                NLPEntity ne = new NLPEntity();
                 ne.setType(s.getType());
                 ne.setStart(s.getStart());
                 ne.setLength(s.length());
@@ -542,13 +578,38 @@ public class NLPServiceImpl extends BaseComponent implements NLPService
         return results;
     }
 
-    public List<NamedEntity> entityDetect(String text, double tolerance)
+    public List<NLPEntity> sanitize(String text)
     {
-        List<NamedEntity> results = new ArrayList<>();
+        NLPEntity[] tokens = tokenizeValues(UtilsService.cleanWhiteSpace(UtilsService.makeAlphaNumeric(text, true)));
+
+        List<NLPEntity> results = Arrays.stream(tokens).filter(
+                c -> !(stopWords.contains(c.getLemma()))
+        ).collect(Collectors.toList());
+
+        return results;
+    }
+
+    public String toSanitizedString(String text)
+    {
+        List<NLPEntity> results = sanitize(text);
+
+        StringBuilder sb = new StringBuilder();
+        for(NLPEntity entity : results)
+        {
+            sb.append(entity.getLemma());
+            sb.append(" ");
+        }
+
+        return sb.toString().trim();
+    }
+
+    public List<NLPEntity> entityDetect(String text, double tolerance)
+    {
+        List<NLPEntity> results = new ArrayList<>();
 
         for (String entityModel : nameFinders.keySet())
         {
-            List<NamedEntity> nes = entityDetect(entityModel, text, tolerance);
+            List<NLPEntity> nes = entityDetect(entityModel, text, tolerance);
 
             results.addAll(nes);
         }
