@@ -9,8 +9,6 @@ import opennlp.tools.util.Span;
 
 public class NamedEntity
 {
-    private String name = "";
-
     private String type = "" ;
 
     private String value = "";
@@ -27,18 +25,24 @@ public class NamedEntity
 
     public NamedEntity(Span span, String value)
     {
-        this.name = span.getType();
-        this.type = span.getType();
+        this.value = value;
+        this.type = (span.getType() == null) ? "UNKNOWN" : span.getType();
         this.start = span.getStart();
         this.length = span.length();
         this.probability = span.getProb();
-
-        this.value = value;
     }
 
-    public NamedEntity(String name, String type, String value, double probability, int start, int length)
+    public NamedEntity(Span span, String value, String type)
     {
-        this.name = name;
+        this.value = value;
+        this.type = (span.getType() == null) ? type : span.getType();
+        this.start = span.getStart();
+        this.length = span.length();
+        this.probability = span.getProb();
+    }
+
+    public NamedEntity(String type, String value, double probability, int start, int length)
+    {
         this.type = type;
         this.value = value;
         this.probability = probability;
@@ -54,16 +58,6 @@ public class NamedEntity
     public void setType(String type)
     {
         this.type = type;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
     }
 
     public String getValue()
@@ -115,7 +109,6 @@ public class NamedEntity
     public String toString()
     {
         return "NamedEntity{" +
-                "name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", value='" + value + '\'' +
                 ", probability=" + probability +
